@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans          
+    http://www.springframework.org/schema/beans/spring-beans.xsd          
+    http://www.springframework.org/schema/security          
+    http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<!-- 配置权限框架放行的规则 -->
+	<security:http pattern="/login.jsp" security="none"></security:http>
+	<security:http pattern="/failer.jsp" security="none"></security:http>
+
+	<!-- 配置框架拦截规则 auto-config 自动配置=true代表应用了框架提供的默认资源文件 use-expressions 是否使用表达式 
+		false为不使用表达式 spel表达式 hasRole('角色名') intercept-url 拦截的地址 pattern="/**" 拦截规则为所有的资源 
+		access 允许接入的ROLE_USER -->
+	<security:http auto-config="true" use-expressions="false">
+		<security:intercept-url pattern="/**" access="ROLE_USER" />
+		<!-- 配置使用自定义的页面测试权限框架 login-page 请求的登录页面 login-processing-url 登录请求的url地址 
+			default-target-url 默认的登录成功页面 authentication-failure-url 认证失败的页面 -->
+		<security:form-login login-page="/login.jsp"
+			login-processing-url="/login" default-target-url="/index.jsp"
+			authentication-failure-url="/failer.jsp" />
+		<!-- csrf是跨域的网络攻击 disabled="true" 关闭防跨域网站攻击 -->
+		<security:csrf disabled="true" />
+		<!-- 无权限的显示页面 -->
+		<security:access-denied-handler
+			error-page="/failer.jsp" />
+	</security:http>
+	<!-- 做认证和权限的判断 -->
+	<!-- 认证管理的节点配置 -->
+	<security:authentication-manager>
+		<!-- 权限验证的提供者 -->
+		<security:authentication-provider>
+			<!-- 框架的业务类判断用户的权限和登录 -->
+			<security:user-service>
+				<!-- 在配置文件中初始化两个账号用于测试 并且授予权限 {noop} 代表是明文的密码验证 -->
+				<security:user name="user" password="{noop}user" authorities="ROLE_USER" />
+				<security:user name="admin" password="{noop}admin" authorities="ROLE_ADMIN" />
+			</security:user-service>
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+</beans>
